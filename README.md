@@ -2,6 +2,12 @@
 
 최소 기능만 담긴 뽀모도로 데스크탑 앱입니다. Electron으로 만든 Windows용 프로그램이며, 설치한 뒤 아이콘을 눌러 독립된 창으로 실행합니다. 로그인·서버·통계 기능은 없습니다.
 
+## 다운로드
+
+### 👉 [최신 버전 다운로드 (Windows 설치 파일)](https://github.com/Damsebi/Pomodoro-desktop-app/releases/latest)
+
+Release 페이지의 **Assets**에서 `PomodoroTimer-Setup-<버전>.exe`를 받아 실행하면 됩니다. Node.js나 Python은 필요하지 않습니다. 자세한 방법은 [설치와 실행](#설치와-실행-일반-사용자)을 참고하세요.
+
 ## 주요 기능
 
 - **타이머 흐름**
@@ -28,22 +34,29 @@
   - 앱을 한 번 더 실행하면 새 창을 만들지 않고 기존 창을 띄웁니다.
 - 한국어 UI, 창 크기에 맞춘 반응형 레이아웃, 라이트/다크 모드를 지원합니다.
 
-## 완성된 앱 설치와 실행 (사용자)
+## 설치와 실행 (일반 사용자)
 
 완성된 앱을 실행하는 데 **Node.js, npm, Python은 필요하지 않습니다.** Electron 런타임이 설치 파일에 포함되어 있습니다.
 
-1. 설치 파일 `PomodoroTimer-Setup-<버전>.exe`를 실행합니다.
-   - 설치 파일은 이 저장소에 포함되어 있지 않습니다. 아래 [빌드](#빌드) 방법으로 만들거나, 배포된 파일(예: GitHub Releases)을 받으세요.
+1. [최신 Release 페이지](https://github.com/Damsebi/Pomodoro-desktop-app/releases/latest)의 **Assets**에서 `PomodoroTimer-Setup-<버전>.exe`를 다운로드합니다.
+2. 다운로드한 파일을 실행합니다.
+3. 설치가 자동으로 진행됩니다.
    - 별도 질문 없이 현재 사용자 계정에 설치되고, 관리자 권한은 필요하지 않습니다.
    - 설치 위치는 `%LOCALAPPDATA%\Programs\pomodoro-timer`입니다.
-2. 설치가 끝나면 앱이 열리고, 바탕 화면과 시작 메뉴에 "뽀모도로 타이머" 바로가기가 생깁니다.
-3. 이후에는 바로가기 아이콘을 눌러 실행합니다.
+4. 설치가 끝나면 앱이 실행되고, 바탕 화면과 시작 메뉴에 "뽀모도로 타이머" 바로가기가 생깁니다. 이후에는 이 아이콘을 눌러 실행합니다.
 
-- 설치 파일은 코드 서명이 되어 있지 않습니다. 다른 PC로 내려받아 실행하면 "Windows의 PC 보호" 경고가 나올 수 있습니다. 이때는 **추가 정보 → 실행**을 누르면 됩니다.
+- 지원 환경: Windows 10 이상 64비트 (Windows 11에서 동작 확인)
+- 설치 파일은 코드 서명이 되어 있지 않습니다. 실행할 때 "Windows의 PC 보호" 창이 나타나면 **추가 정보 → 실행**을 누르면 됩니다.
 - 제거: Windows 설정 → 앱 → 설치된 앱 → 뽀모도로 타이머 → 제거
 - 설정 파일 위치: `%APPDATA%\뽀모도로 타이머\settings.json`
 
-## 개발 환경
+---
+
+## 개발자용 안내
+
+아래 내용은 소스 코드를 수정하거나 직접 빌드하려는 개발자를 위한 것입니다. 앱을 사용하기만 한다면 위의 [설치와 실행](#설치와-실행-일반-사용자)만 보면 됩니다.
+
+### 개발 환경 준비와 실행
 
 - Windows 10/11 x64 (Windows 11에서 확인)
 - Node.js 24 LTS와 npm
@@ -59,7 +72,7 @@ npm test         # 타이머 로직 단위 테스트 (node:test)
 
 Electron 바이너리는 `npm start`를 처음 실행할 때 내려받습니다.
 
-## 빌드
+### 빌드
 
 ```bash
 npm run dist
@@ -83,8 +96,9 @@ npm run dist
 - 코드 서명 인증서는 설정하지 않았습니다. 서명하려면 electron-builder의 Windows 서명 설정을 추가해야 합니다.
 - Windows 알림은 앱 ID와 시작 메뉴 바로가기를 기준으로 앱 이름과 아이콘을 표시합니다. 그래서 개발 모드(`npm start`)는 별도 ID(`com.ppomodoro.desktop.dev`)를 씁니다. 같은 ID를 쓰면 Windows가 개발용 실행 파일 정보를 기억해 설치본 알림에 "Electron"이 표시될 수 있습니다.
 - `dist/win-unpacked/PomodoroTimer.exe`를 설치 없이 실행하면 시작 메뉴 바로가기가 없어 알림이 정상적으로 표시되지 않을 수 있습니다. 배포에는 설치 파일을 사용하세요.
+- 설치 파일은 Git에 커밋하지 않습니다(`.gitignore`에서 `dist/` 제외). [GitHub Releases](https://github.com/Damsebi/Pomodoro-desktop-app/releases)에 `v<버전>` 태그로 Release를 만들어 첨부 파일로 배포합니다.
 
-## 프로젝트 구조
+### 프로젝트 구조
 
 | 파일 | 역할 |
 | --- | --- |
