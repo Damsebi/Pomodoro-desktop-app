@@ -1,0 +1,46 @@
+{
+  "name": "pomodoro-timer",
+  "productName": "뽀모도로 타이머",
+  "version": "1.0.0",
+  "description": "소리 없는 OS 알림을 지원하는 뽀모도로 타이머",
+  "author": "Ppomodoro",
+  "private": true,
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "node --test test/timer.test.js",
+    "dist": "electron-builder --win nsis --x64"
+  },
+  "build": {
+    "appId": "com.ppomodoro.desktop",
+    "productName": "뽀모도로 타이머",
+    "executableName": "PomodoroTimer",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "timer.js",
+      "index.html",
+      "style.css",
+      "app.js"
+    ],
+    "win": {
+      "icon": "build/icon.png"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "뽀모도로 타이머",
+      "runAfterFinish": true,
+      "artifactName": "PomodoroTimer-Setup-${version}.${ext}"
+    }
+  },
+  "devDependencies": {
+    "electron": "^44.7.2",
+    "electron-builder": "^26.15.3"
+  }
+}

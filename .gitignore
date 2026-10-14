@@ -1,0 +1,34 @@
+# 의존성 (npm install로 다시 설치)
+node_modules/
+
+# 빌드 결과물과 설치 파일 (npm run dist로 다시 생성)
+dist/
+out/
+*.exe
+*.msi
+*.blockmap
+
+# 로그
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 캐시
+.cache/
+.npm/
+.eslintcache
+
+# 비밀 정보와 인증서
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.pfx
+*.p12
+
+# OS 파일
+Thumbs.db
+desktop.ini
+.DS_Store

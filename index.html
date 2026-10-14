@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:">
+  <title>뽀모도로 타이머</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body data-phase="focus" data-status="idle">
+  <main class="app">
+    <section class="card timer" aria-label="타이머">
+      <p id="phase" class="phase">집중</p>
+      <p id="round" class="round">집중 1/4회</p>
+      <div id="time" class="time" role="timer" aria-live="off">25:00</div>
+      <div class="progress" aria-hidden="true"><div id="progress-bar" class="progress-bar"></div></div>
+      <div class="controls">
+        <button id="toggle-btn" class="btn btn-primary" type="button">시작</button>
+        <button id="skip-btn" class="btn" type="button">건너뛰기</button>
+        <button id="reset-btn" class="btn" type="button">초기화</button>
+      </div>
+      <p id="message" class="message" role="status" aria-live="polite"></p>
+    </section>
+
+    <section class="card settings" aria-labelledby="settings-title">
+      <h2 id="settings-title">설정</h2>
+      <form id="settings-form" novalidate>
+        <fieldset id="settings-fieldset" disabled>
+          <legend class="visually-hidden">타이머 설정</legend>
+
+          <div class="field">
+            <label for="focusMin">집중 시간</label>
+            <div class="input-wrap">
+              <input id="focusMin" name="focusMin" type="number" inputmode="numeric" min="1" max="999" step="1" required aria-describedby="focusMin-error">
+              <span class="unit">분</span>
+            </div>
+            <p id="focusMin-error" class="field-error"></p>
+          </div>
+
+          <div class="field">
+            <label for="shortMin">짧은 휴식 시간</label>
+            <div class="input-wrap">
+              <input id="shortMin" name="shortMin" type="number" inputmode="numeric" min="1" max="999" step="1" required aria-describedby="shortMin-error">
+              <span class="unit">분</span>
+            </div>
+            <p id="shortMin-error" class="field-error"></p>
+          </div>
+
+          <div class="field">
+            <label for="longMin">긴 휴식 시간</label>
+            <div class="input-wrap">
+              <input id="longMin" name="longMin" type="number" inputmode="numeric" min="1" max="999" step="1" required aria-describedby="longMin-error">
+              <span class="unit">분</span>
+            </div>
+            <p id="longMin-error" class="field-error"></p>
+          </div>
+
+          <div class="field">
+            <label for="longEvery">긴 휴식 전 집중 횟수</label>
+            <div class="input-wrap">
+              <input id="longEvery" name="longEvery" type="number" inputmode="numeric" min="1" max="99" step="1" required aria-describedby="longEvery-error">
+              <span class="unit">회</span>
+            </div>
+            <p id="longEvery-error" class="field-error"></p>
+          </div>
+
+          <div class="field field-toggle">
+            <label for="autoStart">다음 단계 자동 시작</label>
+            <input id="autoStart" name="autoStart" type="checkbox" role="switch">
+          </div>
+        </fieldset>
+        <p id="lock-note" class="note" hidden>진행 중에는 설정을 바꿀 수 없어요. 초기화하면 변경할 수 있어요.</p>
+      </form>
+    </section>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
