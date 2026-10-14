@@ -3,7 +3,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const { app, BrowserWindow, Menu, Notification, ipcMain, nativeTheme, powerMonitor } = require('electron');
-const { PomodoroTimer, applySettingsPatch, notificationTitle, sanitizeSettings } = require('./timer');
+const { PHASE_NAMES, PomodoroTimer, applySettingsPatch, notificationTitle, sanitizeSettings } = require('./timer');
 
 // package.json의 build.appId와 같아야 설치본에서 Windows 알림이 앱 이름과 아이콘으로 표시된다.
 // Windows는 처음 알림을 보낸 실행 파일 정보를 이 ID에 묶어 기억하므로,
@@ -51,8 +51,17 @@ function showWindow() {
   win.focus();
 }
 
+// 창 제목(작업 표시줄)에도 남은 시간을 보여 최소화 중에도 확인할 수 있게 한다.
+function windowTitle(snapshot) {
+  return `${snapshot.timeText} ${PHASE_NAMES[snapshot.phase]} · 뽀모도로`;
+}
+
 function sendState(snapshot) {
-  if (win && !win.isDestroyed()) win.webContents.send('timer:state', snapshot);
+  if (!win || win.isDestroyed()) return;
+  const title = windowTitle(snapshot);
+  if (win.getTitle() !== title) win.setTitle(title);
+  // 최소화 중에는 보이지 않는 화면을 갱신하지 않는다. 창을 복원하면 최신 상태를 바로 보낸다.
+  if (!win.isMinimized()) win.webContents.send('timer:state', snapshot);
 }
 
 function createWindow() {
@@ -63,7 +72,7 @@ function createWindow() {
     minHeight: 520,
     useContentSize: true,
     show: false,
-    title: '뽀모도로 타이머',
+    title: windowTitle(timer.snapshot()),
     backgroundColor: nativeTheme.shouldUseDarkColors ? '#16181c' : '#f6f4f1',
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
@@ -73,6 +82,9 @@ function createWindow() {
   // 앱에 포함된 화면 밖으로 이동하거나 새 창을 여는 것을 막는다.
   win.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
   win.webContents.on('will-navigate', (event) => event.preventDefault());
+  // 창 제목은 메인 프로세스가 관리한다. 페이지의 <title>로 덮어쓰지 않는다.
+  win.on('page-title-updated', (event) => event.preventDefault());
+  win.on('restore', () => sendState(timer.snapshot()));
   // Windows 설정이나 작업 관리자에서 시작앱을 바꾼 뒤 돌아오면 실제 상태를 다시 보여 준다.
   win.on('focus', () => win.webContents.send('login-item:state', getLoginItemState()));
   win.on('closed', () => {

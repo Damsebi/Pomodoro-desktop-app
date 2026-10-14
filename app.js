@@ -37,36 +37,37 @@
   let settings = null;  // 입력란을 되돌릴 때 쓰는 마지막 유효 설정
 
   // ---------- 화면 ----------
+  // 실행 중에는 매초 상태가 오므로, 실제로 바뀐 값만 DOM에 써서 불필요한 스타일·레이아웃 계산을 줄인다.
+  // 창 제목(작업 표시줄의 남은 시간)은 메인 프로세스가 관리한다.
 
-  function formatTime(ms) {
-    const totalSec = Math.ceil(ms / 1000);
-    const m = Math.floor(totalSec / 60);
-    const s = totalSec % 60;
-    return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+  function setText(node, text) {
+    if (node.textContent !== text) node.textContent = text;
   }
+
+  function setBodyData(key, value) {
+    if (document.body.dataset[key] !== value) document.body.dataset[key] = value;
+  }
+
+  let barTransform = '';
 
   function render(state) {
     const firstRender = current === null;
     current = state;
 
-    const time = formatTime(state.remainingMs);
-    const phaseName = PHASE_NAMES[state.phase];
     const { longEvery } = state.settings;
-
-    document.body.dataset.phase = state.phase;
-    document.body.dataset.status = state.status;
-    el.time.textContent = time;
-    el.phase.textContent = phaseName;
-    el.round.textContent = state.phase === 'focus'
+    setBodyData('phase', state.phase);
+    setBodyData('status', state.status);
+    setText(el.time, state.timeText);
+    setText(el.phase, PHASE_NAMES[state.phase]);
+    setText(el.round, state.phase === 'focus'
       ? `집중 ${state.completed + 1}/${longEvery}회`
-      : `집중 ${state.completed}/${longEvery}회 완료`;
-    el.bar.style.transform = `scaleX(${1 - state.remainingMs / state.durationMs})`;
-    el.toggle.textContent = state.status === 'running' ? '일시정지'
+      : `집중 ${state.completed}/${longEvery}회 완료`);
+    const transform = `scaleX(${1 - state.remainingMs / state.durationMs})`;
+    if (transform !== barTransform) el.bar.style.transform = barTransform = transform;
+    setText(el.toggle, state.status === 'running' ? '일시정지'
       : state.status === 'paused' ? '재개'
-      : '시작';
-    el.message.textContent = state.message;
-    // 창 제목(작업 표시줄)에도 남은 시간을 보여 최소화 중에도 확인할 수 있게 한다.
-    document.title = `${time} ${phaseName} · 뽀모도로`;
+      : '시작');
+    setText(el.message, state.message);
 
     if (firstRender || el.fieldset.disabled !== state.inProgress) {
       el.fieldset.disabled = state.inProgress;

@@ -115,12 +115,13 @@ body[data-status="paused"] .time { opacity: 0.55; }
   overflow: hidden;
 }
 
+/* 진행 바는 1초에 1px 안팎으로만 움직이므로 전환 효과를 두지 않는다.
+   매초 0.25초씩 애니메이션 프레임을 그리면 GPU·렌더러 사용량만 늘어난다. */
 .progress-bar {
   height: 100%;
   background: var(--accent);
   transform-origin: left center;
   transform: scaleX(0);
-  transition: transform 0.25s linear;
 }
 
 .controls {
@@ -292,7 +293,6 @@ fieldset:disabled .field { opacity: 0.55; }
 .app-settings .field-error { margin-top: 6px; }
 
 @media (prefers-reduced-motion: reduce) {
-  .progress-bar,
   .field-toggle input,
   .field-toggle input::before { transition: none; }
 }

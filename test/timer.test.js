@@ -6,6 +6,7 @@ const {
   DEFAULT_SETTINGS,
   PomodoroTimer,
   applySettingsPatch,
+  formatTime,
   notificationTitle,
   sanitizeSettings,
 } = require('../timer');
@@ -218,4 +219,19 @@ test('설정 검증', () => {
     sanitizeSettings({ focusMin: 40, shortMin: -1, longMin: 'x', longEvery: 2, autoStart: 'true' }),
     { ...DEFAULT_SETTINGS, focusMin: 40, longEvery: 2 },
   );
+});
+
+test('남은 시간 표시: MM:SS, 남은 초는 올림', () => {
+  assert.equal(formatTime(25 * MIN), '25:00');
+  assert.equal(formatTime(25 * MIN - 1), '25:00');
+  assert.equal(formatTime(270 * 1000), '04:30');
+  assert.equal(formatTime(1), '00:01');
+  assert.equal(formatTime(0), '00:00');
+  assert.equal(formatTime(999 * MIN), '999:00');
+
+  const { timer, run } = setup();
+  assert.equal(timer.snapshot().timeText, '25:00');
+  timer.start();
+  run(1500);
+  assert.equal(timer.snapshot().timeText, '24:59');
 });

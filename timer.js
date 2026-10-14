@@ -46,6 +46,14 @@ function applySettingsPatch(current, patch) {
   return next;
 }
 
+// 남은 시간을 MM:SS로 표시한다. 남은 초는 올림해서 00:00은 종료 순간에만 보인다.
+function formatTime(ms) {
+  const totalSec = Math.ceil(ms / 1000);
+  const m = Math.floor(totalSec / 60);
+  const s = totalSec % 60;
+  return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+}
+
 function nextName({ from, to }) {
   return from === 'long' ? '새 주기의 집중' : PHASE_NAMES[to];
 }
@@ -103,11 +111,13 @@ class PomodoroTimer {
   }
 
   snapshot() {
+    const remainingMs = this.status === 'running' ? Math.max(0, this.endTime - this.now()) : this.remainingMs;
     return {
       phase: this.phase,
       completed: this.completed,
       status: this.status,
-      remainingMs: this.status === 'running' ? Math.max(0, this.endTime - this.now()) : this.remainingMs,
+      remainingMs,
+      timeText: formatTime(remainingMs),
       durationMs: this.duration(this.phase),
       inProgress: this.inProgress,
       message: this.message,
@@ -226,6 +236,7 @@ module.exports = {
   PHASE_NAMES,
   PomodoroTimer,
   applySettingsPatch,
+  formatTime,
   notificationTitle,
   parsePositiveInt,
   sanitizeSettings,
