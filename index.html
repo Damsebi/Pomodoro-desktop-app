@@ -72,6 +72,16 @@
         </fieldset>
         <p id="lock-note" class="note" hidden>진행 중에는 설정을 바꿀 수 없어요. 초기화하면 변경할 수 있어요.</p>
       </form>
+
+      <!-- 타이머 진행과 상관없이 바꿀 수 있는 앱 설정 -->
+      <div class="app-settings">
+        <div class="field field-toggle">
+          <label for="loginItem">Windows 로그인 시 자동 실행</label>
+          <input id="loginItem" type="checkbox" role="switch" disabled aria-describedby="login-item-note login-item-error">
+        </div>
+        <p id="login-item-note" class="note"></p>
+        <p id="login-item-error" class="field-error" role="alert"></p>
+      </div>
     </section>
   </main>
   <script src="app.js"></script>

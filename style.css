@@ -275,6 +275,22 @@ fieldset:disabled .field { opacity: 0.55; }
   color: var(--muted);
 }
 
+.note:empty { display: none; }
+
+.app-settings {
+  margin-top: 16px;
+  padding-top: 6px;
+  border-top: 1px solid var(--border);
+}
+
+.app-settings .field { border-bottom: 0; }
+
+.app-settings .field-toggle input:disabled { opacity: 0.5; }
+
+.app-settings .note { margin-top: 0; }
+
+.app-settings .field-error { margin-top: 6px; }
+
 @media (prefers-reduced-motion: reduce) {
   .progress-bar,
   .field-toggle input,

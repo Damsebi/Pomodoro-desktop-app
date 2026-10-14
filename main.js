@@ -9,6 +9,8 @@ const { PomodoroTimer, applySettingsPatch, notificationTitle, sanitizeSettings }
 // Windows는 처음 알림을 보낸 실행 파일 정보를 이 ID에 묶어 기억하므로,
 // 개발 실행(electron.exe)은 다른 ID를 써서 설치본의 알림 표시가 "Electron"으로 굳지 않게 한다.
 const APP_ID = 'com.ppomodoro.desktop';
+// Windows 시작앱 등록에 쓰는 레지스트리(Run) 값 이름. build/installer.nsh의 제거 스크립트와 같아야 한다.
+const LOGIN_ITEM_NAME = APP_ID;
 
 let win = null;
 let timer = null;
@@ -71,10 +73,51 @@ function createWindow() {
   // 앱에 포함된 화면 밖으로 이동하거나 새 창을 여는 것을 막는다.
   win.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
   win.webContents.on('will-navigate', (event) => event.preventDefault());
+  // Windows 설정이나 작업 관리자에서 시작앱을 바꾼 뒤 돌아오면 실제 상태를 다시 보여 준다.
+  win.on('focus', () => win.webContents.send('login-item:state', getLoginItemState()));
   win.on('closed', () => {
     win = null;
   });
   win.loadFile(path.join(__dirname, 'index.html'));
+}
+
+// ---------- Windows 로그인 시 자동 실행 ----------
+
+// 개발 모드(electron.exe)는 시작앱에 등록하지 않는다. 설치된 앱의 실행 파일만 등록한다.
+function loginItemSupported() {
+  return process.platform === 'win32' && app.isPackaged;
+}
+
+// 레지스트리의 실제 등록 상태를 읽는다.
+// enabled: 다음 로그인 때 실행됨, disabledBySystem: 등록은 되어 있지만 Windows 설정·작업 관리자에서 꺼짐
+function getLoginItemState() {
+  if (!loginItemSupported()) return { supported: false, enabled: false, disabledBySystem: false };
+  const { launchItems = [] } = app.getLoginItemSettings({ path: process.execPath, args: [] });
+  const item = launchItems.find((entry) => entry.name === LOGIN_ITEM_NAME && entry.scope === 'user');
+  return { supported: true, enabled: Boolean(item?.enabled), disabledBySystem: Boolean(item && !item.enabled) };
+}
+
+// setLoginItemSettings는 실패를 알려 주지 않으므로, 바꾼 뒤 실제 상태를 다시 읽어 확인한다.
+function setLoginItem(enabled) {
+  if (!loginItemSupported()) {
+    return { ok: false, error: '설치된 앱에서만 사용할 수 있어요.', state: getLoginItemState() };
+  }
+  try {
+    app.setLoginItemSettings({
+      openAtLogin: enabled,
+      enabled, // 켤 때는 Windows 설정·작업 관리자의 "사용 안 함"도 함께 해제한다.
+      path: process.execPath,
+      args: [],
+      name: LOGIN_ITEM_NAME,
+    });
+  } catch (err) {
+    console.error('시작앱 설정을 바꾸지 못했어요:', err);
+  }
+  const state = getLoginItemState();
+  if (state.enabled !== enabled) {
+    return { ok: false, error: enabled ? '시작앱에 등록하지 못했어요.' : '시작앱 등록을 해제하지 못했어요.', state };
+  }
+  return { ok: true, state };
 }
 
 // ---------- 종료 알림 ----------
@@ -122,6 +165,11 @@ if (!app.requestSingleInstanceLock()) {
       if (!next || !timer.updateSettings(next)) return false;
       saveSettings(next);
       return true;
+    });
+    ipcMain.handle('login-item:get', () => getLoginItemState());
+    ipcMain.handle('login-item:set', (_event, enabled) => {
+      if (typeof enabled !== 'boolean') return { ok: false, error: '잘못된 요청이에요.', state: getLoginItemState() };
+      return setLoginItem(enabled);
     });
 
     // 절전·잠금에서 돌아오면 실제 경과 시간을 바로 반영한다.

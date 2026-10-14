@@ -21,6 +21,9 @@
     fieldset: $('settings-fieldset'),
     lockNote: $('lock-note'),
     autoStart: $('autoStart'),
+    loginItem: $('loginItem'),
+    loginItemNote: $('login-item-note'),
+    loginItemError: $('login-item-error'),
   };
   const inputs = Object.fromEntries(NUMBER_KEYS.map((key) => [key, $(key)]));
 
@@ -140,8 +143,44 @@
   el.skip.addEventListener('click', () => api.skip());
   el.reset.addEventListener('click', () => api.reset());
 
+  // ---------- Windows 로그인 시 자동 실행 ----------
+  // 토글은 메인 프로세스가 읽은 실제 시작앱 등록 상태를 그대로 보여 준다.
+
+  let loginItemPending = false;
+
+  function renderLoginItem(state) {
+    el.loginItem.checked = state.enabled;
+    el.loginItem.disabled = !state.supported || loginItemPending;
+    el.loginItemNote.textContent = !state.supported
+      ? '개발 모드에서는 시작앱에 등록하지 않아요. 설치된 앱에서 사용할 수 있어요.'
+      : state.disabledBySystem
+        ? 'Windows 설정 또는 작업 관리자에서 시작앱이 꺼져 있어요. 다시 켜면 사용으로 바뀌어요.'
+        : '켜면 Windows에 로그인할 때 앱이 열려요. 타이머는 시작 버튼을 누를 때까지 대기해요.';
+  }
+
+  el.loginItem.addEventListener('change', async () => {
+    const wanted = el.loginItem.checked;
+    loginItemPending = true;
+    el.loginItem.disabled = true;
+    el.loginItemError.textContent = '';
+    let result;
+    try {
+      result = await api.setLoginItem(wanted);
+    } catch {
+      result = { ok: false, error: '시작앱 설정을 바꾸지 못했어요.', state: null };
+    }
+    loginItemPending = false;
+    // 실패하면 실제 상태(보통 이전 상태)로 되돌리고 오류를 보여 준다.
+    renderLoginItem(result.state ?? { supported: true, enabled: !wanted, disabledBySystem: false });
+    if (!result.ok) el.loginItemError.textContent = result.error;
+  });
+
   // ---------- 시작 ----------
 
   api.onState(render);
   api.getState().then(render);
+  api.onLoginItemState((state) => {
+    if (!loginItemPending) renderLoginItem(state);
+  });
+  api.getLoginItem().then(renderLoginItem);
 })();

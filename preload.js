@@ -13,4 +13,10 @@ contextBridge.exposeInMainWorld('pomodoro', {
   onState: (callback) => {
     ipcRenderer.on('timer:state', (_event, snapshot) => callback(snapshot));
   },
+  // Windows 로그인 시 자동 실행
+  getLoginItem: () => ipcRenderer.invoke('login-item:get'),
+  setLoginItem: (enabled) => ipcRenderer.invoke('login-item:set', enabled),
+  onLoginItemState: (callback) => {
+    ipcRenderer.on('login-item:state', (_event, state) => callback(state));
+  },
 });
