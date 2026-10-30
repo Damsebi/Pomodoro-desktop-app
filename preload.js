@@ -2,7 +2,7 @@
 
 const { contextBridge, ipcRenderer } = require('electron');
 
-// 화면(app.js)에서 쓸 수 있는 기능만 노출한다. 타이머 계산은 메인 프로세스가 담당한다.
+// 화면(app.js, settings.js)에서 쓸 수 있는 기능만 노출한다. 타이머 계산은 메인 프로세스가 담당한다.
 contextBridge.exposeInMainWorld('pomodoro', {
   getState: () => ipcRenderer.invoke('timer:get-state'),
   start: () => ipcRenderer.invoke('timer:start'),
@@ -12,6 +12,11 @@ contextBridge.exposeInMainWorld('pomodoro', {
   updateSettings: (patch) => ipcRenderer.invoke('settings:update', patch),
   onState: (callback) => {
     ipcRenderer.on('timer:state', (_event, snapshot) => callback(snapshot));
+  },
+  // 설정창 열기·닫기
+  toggleSettings: () => ipcRenderer.invoke('settings-window:toggle'),
+  onSettingsWindow: (callback) => {
+    ipcRenderer.on('settings-window:open', (_event, open) => callback(open));
   },
   // Windows 로그인 시 자동 실행
   getLoginItem: () => ipcRenderer.invoke('login-item:get'),

@@ -1,7 +1,7 @@
 {
   "name": "pomodoro-timer",
   "productName": "뽀모도로 타이머",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "description": "소리 없는 OS 알림을 지원하는 뽀모도로 타이머",
   "author": "Ppomodoro",
   "private": true,
@@ -28,7 +28,10 @@
       "timer.js",
       "index.html",
       "style.css",
-      "app.js"
+      "app.js",
+      "settings.html",
+      "settings.js",
+      "overlay.html"
     ],
     "win": {
       "icon": "build/icon.png"

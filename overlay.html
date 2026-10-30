@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <!-- 스크립트 없이 URL 해시(#focus, #short, #long)와 :target으로 다음 단계의 색만 표시한다. -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'">
+  <title>단계 전환 알림</title>
+  <style>
+    html, body { margin: 0; height: 100%; overflow: hidden; background: transparent; }
+    .overlay { display: none; position: fixed; inset: 0; }
+    .overlay:target { display: block; }
+    #focus { background: rgba(255, 122, 0, 0.3); }
+    #short, #long { background: rgba(34, 170, 80, 0.3); }
+  </style>
+</head>
+<body>
+  <div id="focus" class="overlay"></div>
+  <div id="short" class="overlay"></div>
+  <div id="long" class="overlay"></div>
+</body>
+</html>

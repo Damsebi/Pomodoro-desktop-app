@@ -204,6 +204,18 @@ test('설정은 진행 중에 바꿀 수 없고 초기화 후 바꿀 수 있다'
   assert.equal(view(timer).remainingSec, 50 * 60);
 });
 
+test('알림 방식은 진행 중에도 바꿀 수 있고 남은 시간에 영향이 없다', () => {
+  const { timer, run } = setup();
+  timer.start();
+  run(60 * 1000);
+  assert.equal(timer.updateSettings({ ...timer.settings, notifyMode: 'both' }), true);
+  assert.equal(timer.settings.notifyMode, 'both');
+  assert.deepEqual(view(timer), { phase: 'focus', completed: 0, status: 'running', remainingSec: 24 * 60 });
+  // 알림 방식과 함께 잠긴 설정을 바꾸면 거부한다.
+  assert.equal(timer.updateSettings({ ...timer.settings, notifyMode: 'off', focusMin: 10 }), false);
+  assert.equal(timer.settings.notifyMode, 'both');
+});
+
 test('설정 검증', () => {
   const base = { ...DEFAULT_SETTINGS };
   for (const bad of [0, -3, 2.5, '', '1e3', 1000, null, '7a']) {
@@ -213,6 +225,13 @@ test('설정 검증', () => {
   assert.equal(applySettingsPatch(base, { autoStart: 'yes' }), null);
   assert.equal(applySettingsPatch(base, { unknown: 1 }), null);
   assert.deepEqual(applySettingsPatch(base, { focusMin: '30', autoStart: true }), { ...base, focusMin: 30, autoStart: true });
+  assert.equal(base.notifyMode, 'desktop');
+  for (const mode of ['desktop', 'overlay', 'both', 'off']) {
+    assert.equal(applySettingsPatch(base, { notifyMode: mode }).notifyMode, mode);
+  }
+  assert.equal(applySettingsPatch(base, { notifyMode: 'sound' }), null);
+  assert.equal(sanitizeSettings({ notifyMode: 'overlay' }).notifyMode, 'overlay');
+  assert.equal(sanitizeSettings({ notifyMode: 'loud' }).notifyMode, 'desktop');
 
   assert.deepEqual(sanitizeSettings(null), DEFAULT_SETTINGS);
   assert.deepEqual(

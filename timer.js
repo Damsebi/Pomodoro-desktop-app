@@ -2,10 +2,12 @@
 
 // 뽀모도로 타이머 상태와 설정 검증. Electron에 의존하지 않아 Node만으로 테스트할 수 있다.
 
-const DEFAULT_SETTINGS = Object.freeze({ focusMin: 25, shortMin: 5, longMin: 15, longEvery: 4, autoStart: false });
-// 숫자 설정의 최댓값 (최솟값은 모두 1). index.html 입력란의 max와 맞춘다.
+const DEFAULT_SETTINGS = Object.freeze({ focusMin: 25, shortMin: 5, longMin: 15, longEvery: 4, autoStart: false, notifyMode: 'desktop' });
+// 숫자 설정의 최댓값 (최솟값은 모두 1). settings.html 입력란의 max와 맞춘다.
 const LIMITS = Object.freeze({ focusMin: 999, shortMin: 999, longMin: 999, longEvery: 99 });
 const PHASE_NAMES = Object.freeze({ focus: '집중', short: '짧은 휴식', long: '긴 휴식' });
+// 단계 전환 알림 방식: 데스크톱 알림 / 화면 색상 알림 / 둘 다 / 끄기
+const NOTIFY_MODES = Object.freeze(['desktop', 'overlay', 'both', 'off']);
 
 function parsePositiveInt(value, max) {
   if (typeof value !== 'number' && typeof value !== 'string') return null;
@@ -24,6 +26,7 @@ function sanitizeSettings(raw) {
       if (n !== null) result[key] = n;
     }
     if (typeof raw.autoStart === 'boolean') result.autoStart = raw.autoStart;
+    if (NOTIFY_MODES.includes(raw.notifyMode)) result.notifyMode = raw.notifyMode;
   }
   return result;
 }
@@ -39,6 +42,8 @@ function applySettingsPatch(current, patch) {
       next[key] = n;
     } else if (key === 'autoStart' && typeof value === 'boolean') {
       next.autoStart = value;
+    } else if (key === 'notifyMode' && NOTIFY_MODES.includes(value)) {
+      next.notifyMode = value;
     } else {
       return null;
     }
@@ -161,11 +166,12 @@ class PomodoroTimer {
     this.emit();
   }
 
-  // 초기화 상태에서만 설정을 바꿀 수 있다.
+  // 시간·횟수·자동 시작은 초기화 상태에서만 바꿀 수 있다. 알림 방식은 진행 중에도 바꿀 수 있다.
   updateSettings(next) {
-    if (this.inProgress) return false;
+    const lockedChange = Object.keys(next).some((key) => key !== 'notifyMode' && next[key] !== this.settings[key]);
+    if (this.inProgress && lockedChange) return false;
     this.settings = { ...next };
-    this.remainingMs = this.duration('focus');
+    if (!this.inProgress) this.remainingMs = this.duration('focus');
     this.emit();
     return true;
   }
@@ -233,6 +239,7 @@ class PomodoroTimer {
 module.exports = {
   DEFAULT_SETTINGS,
   LIMITS,
+  NOTIFY_MODES,
   PHASE_NAMES,
   PomodoroTimer,
   applySettingsPatch,

@@ -55,21 +55,15 @@ body {
   white-space: nowrap;
 }
 
+/* 메인창과 설정창은 각각 카드 하나를 가운데에 둔다. */
 .app {
   display: grid;
   gap: 16px;
-  max-width: 960px;
+  max-width: 520px;
+  min-height: 100vh;
+  align-content: center;
   margin: 0 auto;
   padding: 24px 16px;
-}
-
-@media (min-width: 800px) {
-  .app {
-    grid-template-columns: 3fr 2fr;
-    align-items: start;
-    align-content: center;
-    min-height: 100vh;
-  }
 }
 
 .card {
@@ -81,8 +75,18 @@ body {
 
 /* 타이머 */
 .timer {
+  position: relative;
   text-align: center;
   border-top: 4px solid var(--accent);
+}
+
+.btn-settings {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  min-height: 32px;
+  padding: 0 10px;
+  font-size: 0.85rem;
 }
 
 .phase {
@@ -291,6 +295,32 @@ fieldset:disabled .field { opacity: 0.55; }
 .app-settings .note { margin-top: 0; }
 
 .app-settings .field-error { margin-top: 6px; }
+
+.notify-mode {
+  display: grid;
+  gap: 2px;
+  padding: 8px 0 4px;
+}
+
+.notify-mode legend {
+  margin-bottom: 6px;
+  padding: 0;
+}
+
+.radio {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  cursor: pointer;
+}
+
+.radio input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--accent);
+}
 
 @media (prefers-reduced-motion: reduce) {
   .field-toggle input,

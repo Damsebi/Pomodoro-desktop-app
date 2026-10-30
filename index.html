@@ -11,6 +11,7 @@
 <body data-phase="focus" data-status="idle">
   <main class="app">
     <section class="card timer" aria-label="타이머">
+      <button id="settings-btn" class="btn btn-settings" type="button" aria-expanded="false">설정</button>
       <p id="phase" class="phase">집중</p>
       <p id="round" class="round">집중 1/4회</p>
       <div id="time" class="time" role="timer" aria-live="off">25:00</div>
@@ -21,67 +22,6 @@
         <button id="reset-btn" class="btn" type="button">초기화</button>
       </div>
       <p id="message" class="message" role="status" aria-live="polite"></p>
-    </section>
-
-    <section class="card settings" aria-labelledby="settings-title">
-      <h2 id="settings-title">설정</h2>
-      <form id="settings-form" novalidate>
-        <fieldset id="settings-fieldset" disabled>
-          <legend class="visually-hidden">타이머 설정</legend>
-
-          <div class="field">
-            <label for="focusMin">집중 시간</label>
-            <div class="input-wrap">
-              <input id="focusMin" name="focusMin" type="number" inputmode="numeric" min="1" max="999" step="1" required aria-describedby="focusMin-error">
-              <span class="unit">분</span>
-            </div>
-            <p id="focusMin-error" class="field-error"></p>
-          </div>
-
-          <div class="field">
-            <label for="shortMin">짧은 휴식 시간</label>
-            <div class="input-wrap">
-              <input id="shortMin" name="shortMin" type="number" inputmode="numeric" min="1" max="999" step="1" required aria-describedby="shortMin-error">
-              <span class="unit">분</span>
-            </div>
-            <p id="shortMin-error" class="field-error"></p>
-          </div>
-
-          <div class="field">
-            <label for="longMin">긴 휴식 시간</label>
-            <div class="input-wrap">
-              <input id="longMin" name="longMin" type="number" inputmode="numeric" min="1" max="999" step="1" required aria-describedby="longMin-error">
-              <span class="unit">분</span>
-            </div>
-            <p id="longMin-error" class="field-error"></p>
-          </div>
-
-          <div class="field">
-            <label for="longEvery">긴 휴식 전 집중 횟수</label>
-            <div class="input-wrap">
-              <input id="longEvery" name="longEvery" type="number" inputmode="numeric" min="1" max="99" step="1" required aria-describedby="longEvery-error">
-              <span class="unit">회</span>
-            </div>
-            <p id="longEvery-error" class="field-error"></p>
-          </div>
-
-          <div class="field field-toggle">
-            <label for="autoStart">다음 단계 자동 시작</label>
-            <input id="autoStart" name="autoStart" type="checkbox" role="switch">
-          </div>
-        </fieldset>
-        <p id="lock-note" class="note" hidden>진행 중에는 설정을 바꿀 수 없어요. 초기화하면 변경할 수 있어요.</p>
-      </form>
-
-      <!-- 타이머 진행과 상관없이 바꿀 수 있는 앱 설정 -->
-      <div class="app-settings">
-        <div class="field field-toggle">
-          <label for="loginItem">Windows 로그인 시 자동 실행</label>
-          <input id="loginItem" type="checkbox" role="switch" disabled aria-describedby="login-item-note login-item-error">
-        </div>
-        <p id="login-item-note" class="note"></p>
-        <p id="login-item-error" class="field-error" role="alert"></p>
-      </div>
     </section>
   </main>
   <script src="app.js"></script>
